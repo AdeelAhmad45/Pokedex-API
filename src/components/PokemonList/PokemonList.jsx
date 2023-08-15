@@ -8,14 +8,22 @@ function PokemonList() {
     const [PokemonList, setPokemonList] = useState([]);
     const [isLoading, setisLoading] = useState(true);
 
+    const pokedexURL = 'https://pokeapi.co/api/v2/pokemon'
  
     async function downloadPokemon() {
-        const response = await axios.get('https://pokeapi.co/api/v2/pokemon');
-        const pokemonResults = response.data.results;
+        const response = await axios.get(pokedexURL); // this download 20 pokemon List 
+        const pokemonResults = response.data.results; // we get the array of pokemons from result
+        console.log(response.data);
+
+        // Iterating over the array of pokemons, and using their url to create an array of promises that will download those 20 pokemons
         const pokemonResultPromise = pokemonResults.map((pokemon) => axios.get(pokemon.url));
+
+        // passing that promise array to axios.all
         const pokemonData = await axios.all(pokemonResultPromise);
 
        console.log(pokemonData);
+
+       // now iterate on that of each pokemons , extract id, name, image 
        const res = pokemonData.map((pokedata)=> {
         const pokemon = pokedata.data;
         return{
@@ -38,11 +46,18 @@ function PokemonList() {
     return(
      
         <div className="pokemon-list-wrapper">
-           <div>Pokemon List</div> 
-            {(isLoading) ? 'Loading...': 
+           {/* <div>Pokemon List</div>  */}
+           <div className="pokemon-wrapper">
+           {(isLoading) ? 'Loading...': 
                PokemonList.map((p) => <Pokemon name={p.name} image={p.image} key={p.id} />)
     }
+           </div>
+           <div className="controls">
+            <button>Prev</button>
+            <button>Next</button>
+           </div>
         </div>
+        
         
     )
 }
